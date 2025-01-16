@@ -142,4 +142,21 @@
   "typescript.surveys.enabled": false
 }
 
+    {
+  "singleQuote": true,
+  "semi": true,
+  "printWidth": 240,
+  "astroAllowShorthand": false,
+  "plugins": ["prettier-plugin-astro"],
+  "overrides": [
+    {
+      "files": "*.astro",
+      "options": {
+        "parser": "astro"
+      }
+    }
+  ]
+}
+
+
 </pre>

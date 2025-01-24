@@ -1,5 +1,4 @@
-<pre>
-  <div class="wrapper">
+<div class="wrapper">
   <div class="accordion">
     <div class="accordion-panel">
       <h2 id="panel1-title">
@@ -77,4 +76,3 @@
   <p>Quo saepe placeat porro, molestias iste perferendis est temporibus ipsa totam libero voluptas! Necessitatibus eius dolorem corporis dolorum, unde assumenda dicta esse. Possimus minima id voluptate atque unde perspiciatis dignissimos.</p>
 
 </div>
-</pre>

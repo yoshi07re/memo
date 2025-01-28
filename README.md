@@ -1,4 +1,21 @@
- clip-path: polygon(0 0, 86.6% 50%, 0 100%);
-  height: 100px;
-  aspect-ratio: 1;
-  background-color: #333;
+  @media not (width >= 375px) {
+    html {
+      font-size: calc(100 / var(--base-vw) * 1 * 16vw);
+    }
+  }
+
+  @media (width >= 640px) and (width <= 767.98px) {
+    html {
+      font-size: calc(100 / var(--base-vw) * 1 * 16vw);
+
+      --base-vw: 640;
+    }
+  }
+
+  @media (width >= 1920px) {
+    html {
+      font-size: calc(100 / var(--base-vw) * 1 * 16vw);
+
+      --base-vw: 1920;
+    }
+  }

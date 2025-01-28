@@ -1,11 +1,1 @@
-content: "";
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  z-index: -1;
-  width: 20px;
-  height: 12px;
-  transform: translateX(-50%);
-  box-sizing: border-box;
-  background-color: #333333;
-  clip-path: polygon(0 0, 100% 0, 50% 100%);
+   filter: drop-shadow(-2px 2px 0px var(--main-color)) drop-shadow(2px -2px 0px var(--main-color)) drop-shadow(-2px -2px 0 var(--main-color) ) drop-shadow(2px 2px 0 var(--main-color)) ;

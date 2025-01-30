@@ -1,31 +1,9 @@
-const initializeViewport = () => {
-  const debouncedResize = debounce(handleResize);
-  window.addEventListener('resize', debouncedResize, false);
-  debouncedResize();
-};
-
-const handleResize = () => {
-  const minWidth = 360;
-  const value = window.outerWidth > minWidth ? 'width=device-width,initial-scale=1' : `width=${minWidth}`;
-  const viewport = document.querySelector('meta[name="viewport"]');
-  if (viewport) {
-    if (viewport.getAttribute('content') !== value) {
-      viewport.setAttribute('content', value);
-    }
-  } else {
-    console.warn('Viewport meta tag not found!');
-  }
-};
-
-const debounce = (callback) => {
-  let timeout;
-
-  return (...args) => {
-    if (timeout !== undefined) cancelAnimationFrame(timeout);
-    timeout = requestAnimationFrame(() => callback(...args)); // `this`を削除
-  };
-};
-
-document.addEventListener("DOMContentLoaded", () => {
-  initializeViewport();
-});
+.card__content {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to top, #000, rgba(0, 0, 0, 0) bottom/100% 60% no-repeat;
+    padding: 1rem;
+}

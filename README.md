@@ -1,5 +1,6 @@
 https://codepen.io/yopida_re/pen/YPzPGMo
 https://b-moon.net/responsive-font-size-with-clamp-and-custom-properties/
+https://lopan.jp/css-custom-properties/variables/
 
 
 *,

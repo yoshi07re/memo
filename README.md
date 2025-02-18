@@ -2,41 +2,88 @@ https://codepen.io/yopida_re/pen/YPzPGMo
 https://b-moon.net/responsive-font-size-with-clamp-and-custom-properties/
 https://lopan.jp/css-custom-properties/variables/
 
+//スムーススクロール関数
+const smoothScroll = () => {
+  //スクロールリンク取得
+  const targets = document.querySelectorAll('a[href^="#"]');
+  if (targets.length === 0) {
+    return;
+  }
 
-*,
-::before,
-::after {
-  --clamp-root-font-size: 16;
-  --clamp-slope: calc((var(--clamp-max) - var(--clamp-min)) / (var(--clamp-viewport-max) - var(--clamp-viewport-min)));
-  --clamp-y-axis-intersection: calc(var(--clamp-min) - (var(--clamp-slope) * var(--clamp-viewport-min)));
-  --clamp-preffered-value: calc(
-    var(--clamp-y-axis-intersection) * (1rem / var(--clamp-root-font-size)) + (var(--clamp-slope) * 100vi)
-  );
-  --clamp: clamp(
-    calc(var(--clamp-min) * (1rem / var(--clamp-root-font-size))),
-    var(--clamp-preffered-value),
-    calc(var(--clamp-max) * (1rem / var(--clamp-root-font-size)))
-  );
+  function easing(t, b, c, d) {
+    return c * (0.5 - Math.cos((t / d) * Math.PI) / 2) + b;
+  }
 
-  font-size: var(--clamp);
-}
+  //スクロール速度
+  const animeSpeed = 600;
+  const scrollBusyClass = "is-scroll-busy";
+  const bodyElm = document.body;
 
-/* bodyにデフォルト値を設定する */
-body {
-  --clamp-viewport-min: 375;
-  --clamp-viewport-max: 1200;
-  --clamp-min: 14;
-  --clamp-max: 16;
-}
+  //クリックイベント設定
+  targets.forEach((target) => {
+    target.addEventListener("click", (event) => {
+      event.preventDefault();
 
+      //スクロールイベント重複防止
+      if (bodyElm.classList.contains(scrollBusyClass)) {
+        return;
+      }
+      bodyElm.classList.add(scrollBusyClass);
 
-* {
-   /* font-size: calc(var(--size) * var(--px-to-rem)); */
-  --to-rem: calc(var(--size, 16) / 16 * 1rem);
-}
+      //hrefから遷移先を取得
+      const href = target.getAttribute("href");
+      const scrollStopTarget = document.querySelector(
+        href == "#" || href == "" ? "html" : href
+      );
 
-/* 使用時 */
-p {
-  --size: 14;
-  font-size: var(--to-rem);
-}
+      //遷移先が存在しない場合が処理しない
+      if (!scrollStopTarget) {
+        return;
+      }
+
+      //移動先取得
+      const scrollStopTop = scrollStopTarget.getBoundingClientRect().top;
+
+      //現在のスクロール量
+      const scrollTop =
+        window.pageYOffset || document.documentElement.scrollTop;
+
+      //アニメーション開始時間
+      let start;
+      //スクロールアニメーション関数
+      function mainAnime(timestamp) {
+        //イベント発生後の経過時間
+        // start未定義時のみtimestampを代入することで一度だけstartに数値を格納する
+        if (start === undefined) {
+          start = timestamp;
+        }
+
+        // 経過時間を監視 (初回の実行ではtimestampはundefinedなため三項演算子で0をフォールバックさせる)
+        const elapsedTime = start ? timestamp - start : 0;
+
+        //アニメーション終了処理
+        if (elapsedTime > animeSpeed) {
+          //実行中class削除
+          bodyElm.classList.remove(scrollBusyClass);
+
+          //処理を終了
+          return;
+        }
+
+        //スクロール処理
+        window.scrollTo(
+          0,
+          //「アニメーションの経過時間」,「始点」,「変化量」,「変化にかける時間」
+          easing(elapsedTime, scrollTop, scrollStopTop, animeSpeed)
+        );
+        requestAnimationFrame(mainAnime);
+      }
+
+      //アニメーション初回呼び出し
+      requestAnimationFrame(mainAnime);
+    });
+  });
+};
+
+//スムーススクロール関数呼び出し
+smoothScroll();

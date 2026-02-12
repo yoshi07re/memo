@@ -1,146 +1,130 @@
-[
-  {
-    "slug": "20260201",
-    "title": "サイトメンテナンスのお知らせ",
-    "body": "2/1 02:00〜04:00 にメンテナンスを行います。\n期間中、一時的に表示が不安定になる場合があります。\nご迷惑をおかけしますが、ご了承ください。",
-    "category": "maintenance",
-    "publishedAt": "2026-02-01T09:00:00+09:00"
-  },
-  {
-    "slug": "20260203",
-    "title": "新機能：お問い合わせフォームの改善",
-    "body": "スパム対策を強化し、送信完了までの導線を短縮しました。\nスマホでの入力体験も改善しています。",
-    "category": "update",
-    "publishedAt": "2026-02-03T12:30:00+09:00"
-  },
-  {
-    "slug": "20260205",
-    "title": "お知らせ一覧ページの表示速度を改善しました",
-    "body": "キャッシュ戦略を見直し、初回表示と再訪問時の体感速度を改善しました。\nあわせて画像の最適化も実施しています。",
-    "category": "performance",
-    "publishedAt": "2026-02-05T18:10:00+09:00"
-  },
-  {
-    "slug": "20260206",
-    "title": "障害発生と復旧のご報告",
-    "body": "本日 10:12〜10:28 の間、一部ページが表示できない状態が発生しました。\n原因はCDN設定の切り替え時の不整合で、現在は復旧済みです。\n再発防止としてデプロイ手順を更新しました。",
-    "category": "incident",
-    "publishedAt": "2026-02-06T11:00:00+09:00"
-  },
-  {
-    "slug": "20260210",
-    "title": "採用情報を更新しました",
-    "body": "Web制作・運用ポジションの募集要項を更新しました。\n詳細は採用ページをご確認ください。",
-    "category": "recruit",
-    "publishedAt": "2026-02-10T09:00:00+09:00"
-  }
-]
+# BEM Element が増えすぎる問題への実務対策
 
+## 対策A：Element は「アンカーだけ」付ける
 
+全部に `__` を付けない。スタイルの起点（アンカー）になる要素だけ BEM クラスを持たせて、細部は要素セレクタやユーティリティで処理する。
 
-<!doctype html>
-<html lang="ja">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>JSON → HTML Generator</title>
-  <style>
-    body { font-family: system-ui, -apple-system, sans-serif; padding: 16px; }
-    button, input { padding: 10px; }
-    .log { white-space: pre-wrap; background: #f5f5f5; padding: 12px; margin-top: 12px; }
-  </style>
-</head>
-<body>
-  <h1>JSON → 1レコード = 1ページ HTML生成</h1>
+```html
+<section class="lp-hero">
+  <div class="lp-hero__body">
+    <h1>タイトル</h1>
+    <p>リードテキスト</p>
+  </div>
+</section>
+```
 
-  <p>
-    JSONファイル：
-    <input id="jsonPath" value="./data.json" size="30" />
-  </p>
+```css
+.lp-hero__body > h1 { /* タイトル */ }
+.lp-hero__body > p  { /* リード */ }
+```
 
-  <p>
-    サイトURL：
-    <input id="siteOrigin" value="https://example.com" size="30" />
-  </p>
+- ✅ BEM は「構造の要点」だけ
+- ✅ 子要素が増えてもクラスが増えない
+- ⚠️ `>` 前提なので DOM 変更が多い場所では使いすぎ注意（次の対策と併用）
 
-  <button id="run">ZIPでダウンロード</button>
+---
 
-  <div id="log" class="log"></div>
+## 対策B：繰り返しは"子コンポーネント化"して BEM を分割
 
-  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
-  <script>
-    const log = (msg) => document.getElementById("log").textContent = msg;
+子要素が多い場所は、だいたい「繰り返しブロック」。その部分だけ独立 Block に切ると、命名も CSS も分散して短くなる。
 
-    const escapeHtml = (s) =>
-      String(s ?? "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;");
+```html
+<!-- 事例セクション -->
+<section class="lp-case">
+  <div class="lp-case__list">
+    <!-- 事例カード（独立Block） -->
+    <article class="case-card">
+      <h3 class="case-card__title">事例タイトル</h3>
+      <p class="case-card__desc">説明文</p>
+    </article>
+  </div>
+</section>
+```
 
-    const formatDate = (iso) => {
-      if (!iso) return "";
-      const d = new Date(iso);
-      return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,"0")}.${String(d.getDate()).padStart(2,"0")}`;
-    };
+- ✅ `lp-case__item__title__...` みたいな地獄を回避
+- ✅ CSS も責務分離できる
 
-    function buildHtml(item, siteOrigin) {
-      const url = `${siteOrigin}/news/${item.slug}/`;
-      const body = escapeHtml(item.body).replaceAll("\n", "<br>");
+---
 
-      return `<!doctype html>
-<html lang="ja">
-<head>
-  <meta charset="utf-8">
-  <title>${escapeHtml(item.title)}</title>
-  <meta name="description" content="${escapeHtml(item.body.slice(0,120))}">
-  <meta property="og:type" content="article">
-  <meta property="og:url" content="${url}">
-</head>
-<body>
-  <main style="max-width:720px;margin:40px auto;font-family:system-ui">
-    <time datetime="${item.publishedAt}">
-      ${formatDate(item.publishedAt)}
-    </time>
-    <h1>${escapeHtml(item.title)}</h1>
-    <p>${body}</p>
-    <p><a href="/news/">← 一覧へ</a></p>
-  </main>
-</body>
-</html>`;
-    }
+## 対策C：「意味が薄い小物」は Utility に寄せる
 
-    document.getElementById("run").onclick = async () => {
-      try {
-        const jsonPath = document.getElementById("jsonPath").value;
-        const siteOrigin = document.getElementById("siteOrigin").value.replace(/\/$/, "");
+`__text` `__desc` `__note` `__label` が増えるのは、見た目上の差分が理由なことが多い。そこは Utility で済ませるのが現実的。
 
-        const res = await fetch(jsonPath);
-        if (!res.ok) throw new Error("JSONが読み込めません");
+```html
+<p class="text-sm text-muted">補足テキスト</p>
+<span class="font-bold text-accent">ラベル</span>
+```
 
-        const data = await res.json();
-        if (!Array.isArray(data)) throw new Error("JSONは配列である必要があります");
+- ✅ BEM の Element を増やさず見た目調整できる
+- ✅ 命名が短くなる
 
-        const zip = new JSZip();
+---
 
-        for (const item of data) {
-          if (!item.slug) continue;
-          zip.file(`${item.slug}/index.html`, buildHtml(item, siteOrigin));
-        }
+## 対策D：Element 命名のパターンを固定して増殖を抑える
 
-        const blob = await zip.generateAsync({ type: "blob" });
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = "pages.zip";
-        a.click();
+Element 名が増えると破綻するので、有限の語彙で回すのがコツ。
 
-        log(`OK: ${data.length}件からHTMLを生成しました`);
-      } catch (e) {
-        log("Error: " + e.message);
-      }
-    };
-  </script>
-</body>
-</html>
+### おすすめ固定セット
 
+| Element 名 | 用途 |
+|------------|------|
+| `__inner` | 内側ラッパー |
+| `__body` | メインコンテンツ領域 |
+| `__head` | ヘッダー部 |
+| `__foot` | フッター部 |
+| `__title` | 見出し |
+| `__lead` | リード文 |
+| `__list` | リストコンテナ |
+| `__item` | リスト項目 |
+| `__cta` | CTA ボタン |
+| `__actions` | 操作ボタン群 |
+| `__media` | メディア領域 |
+| `__img` | 画像 |
+| `__icon` | アイコン |
 
+```html
+<!-- 比較表の例 -->
+<section class="lp-compare">
+  <div class="lp-compare__head">
+    <h2 class="lp-compare__title">プラン比較</h2>
+    <p class="lp-compare__lead">最適なプランをお選びください</p>
+  </div>
+  <div class="lp-compare__body">
+    <div class="lp-compare__list">...</div>
+  </div>
+  <div class="lp-compare__foot">
+    <a class="lp-compare__cta">お問い合わせ</a>
+  </div>
+</section>
+```
 
+これで「細かい名前を考える回数」が減る。
+
+---
+
+## 対策E：`data-*` を "JS フック専用" にしてクラス数を減らす
+
+子要素が増える理由が「JS 用クラス」だとさらに増える。JS は `data-ui` に逃がすと、BEM は純粋に見た目だけにできる。
+
+```html
+<button class="lp-hero__cta" data-ui="open-modal">お申し込み</button>
+```
+
+```js
+document.querySelector('[data-ui="open-modal"]')
+```
+
+- ✅ 見た目クラスと挙動フックを分離
+- ✅ 命名衝突も減る
+
+---
+
+## まとめ：短くて崩れない実務ルール
+
+| ルール | やること |
+|--------|---------|
+| Element はアンカーだけ | 全部に付けない |
+| 繰り返しは別 Block 化 | カード / リスト / フォーム行 |
+| 小物の見た目差分は Utility へ | BEM Element を増やさない |
+| Element 語彙は固定セットで回す | 命名コスト削減 |
+| JS フックは data 属性 | 見た目と挙動を分離 |

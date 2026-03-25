@@ -119,36 +119,31 @@ document.querySelector('[data-ui="open-modal"]')
 
 ---
 
-@property --scFade-progress {
-  syntax: '<number>';
-  inherits: false;
-  initial-value: -1;
+.mv_hbspt {
+  position: relative;
 }
 
-@keyframes scFade {
-  0%   { --scFade-progress: -1; }
-  100% { --scFade-progress: 0; }
+.mv_hbspt::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3rem;
+  background: linear-gradient(to bottom, transparent, white);
+  pointer-events: none;
+  transition: opacity 0.3s;
 }
 
-.mv_hbspt .hbspt-form {
-  height: 400px;
-  overflow-y: scroll;
-  padding-left: 16px;
-
-  /* フェードの設定 */
-  --scFade-size: 3rem;
-  --scFade-offset: 1px;
-
-  mask-image: linear-gradient(
-    to bottom,
-    transparent var(--scFade-offset),
-    black var(--scFade-size),
-    black calc(100% - var(--scFade-size)),
-    transparent calc(100% - var(--scFade-offset))
-  );
-  mask-size: 100% calc(100% + var(--scFade-size));
-  mask-position: 0 calc(var(--scFade-progress) * var(--scFade-size));
-
-  animation: scFade linear;
-  animation-timeline: scroll(self y);
+.mv_hbspt.is-end::after {
+  opacity: 0;
 }
+js// iframeのスクロールは取れないので、HubSpotフォームの高さ変化を監視して
+// 一定時間後に末尾判定をリセットする簡易版
+const wrapper = document.querySelector('.mv_hbspt');
+const formEl = document.querySelector('.mv_hbspt .hbspt-form');
+
+formEl.addEventListener('scroll', () => {
+  const isEnd = formEl.scrollTop + formEl.clientHeight >= formEl.scrollHeight - 4;
+  wrapper.classList.toggle('is-end', isEnd);
+});
